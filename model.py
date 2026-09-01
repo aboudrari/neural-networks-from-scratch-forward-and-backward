@@ -30,13 +30,15 @@ def numerical_gradient(f, x, eps=1e-5):
 import numpy as np
 
 def gradient_check(analytic_grad, numeric_grad, tol=1e-5):
-    analytic_grad = np.asarray(analytic_grad, dtype=float)
+
+    analytic_grad = np.asarray(analytic_grad, dtype=float)  # change it to numpy array you can also use np.array()
     numeric_grad = np.asarray(numeric_grad, dtype=float)
 
     diff = np.abs(analytic_grad - numeric_grad)
 
     scale = np.maximum(
-        np.maximum(np.abs(analytic_grad), np.abs(numeric_grad)),
+        np.maximum(np.abs(analytic_grad), 
+        np.abs(numeric_grad)),
         tol
     )
 
