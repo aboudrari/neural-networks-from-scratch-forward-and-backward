@@ -46,8 +46,44 @@ def gradient_check(analytic_grad, numeric_grad, tol=1e-5):
 
     return float(np.max(relative_error))
 
-# Step 3 - make_dense (not yet solved)
-# TODO: implement
+# Step 3 - make_dense
+def make_dense(in_dim, out_dim, weight_init_fn):
+    """Create a fully connected layer."""
+
+    # params
+    W, b = weight_init_fn(in_dim, out_dim)
+
+    params = {
+        'W': W,
+        'b': b
+    }
+
+    # forward pass
+    def forward(x):
+        y = x @ params['W'] + params['b']
+        cache = x
+        return y, cache
+
+    # backward pass
+    def backward(dout, cache):
+        x = cache
+
+        dx = dout @ params['W'].T
+        dW = x.T @ dout
+        db = dout.sum(axis=0)
+
+        grads = {
+            'W': dW,
+            'b': db
+        }
+
+        return dx, grads
+
+    return {
+        'params': params,
+        'forward': forward,
+        'backward': backward
+    }
 
 # Step 4 - make_activation (not yet solved)
 # TODO: implement
