@@ -154,8 +154,55 @@ def initialize_weights(in_dim, out_dim, scheme='he'):
     else:
         raise ValueError(f"Unsupported initialization scheme: {scheme}")
 
-# Step 6 - make_loss (not yet solved)
-# TODO: implement
+# Step 6 - make_loss
+def make_loss(kind='cross_entropy'):
+    """Return a classification loss_fn(logits, labels) -> (loss, d_logits).
+
+    Inputs to loss_fn:
+      logits: (batch, C) float array of raw class scores
+      labels: (batch,) int array of class indices in [0, C)
+    Outputs:
+      loss: Python float, mean scalar loss over the batch (finite)
+      d_logits: (batch, C) gradient of loss w.r.t. logits (finite)
+    Must pass gradient_check, be minimized by confident correct predictions,
+    and stay finite under saturated logits.
+    """
+
+    if kind != 'cross_entropy':
+        raise ValueError(f"Unsupported loss: {kind}")
+
+    def loss_fn(logits, labels):
+        batch_size = logits.shape[0]
+
+        # Numerical stability
+        shifted = logits - np.max(
+            logits, axis=1, keepdims=True
+        )
+
+        # Softmax
+        exp_scores = np.exp(shifted)
+        probs = exp_scores / np.sum(
+            exp_scores, axis=1, keepdims=True
+        )
+
+        # Cross-entropy loss
+        correct_probs = probs[
+            np.arange(batch_size), labels
+        ]
+
+        loss = -np.mean(np.log(correct_probs))
+
+        # Gradient
+        d_logits = probs.copy()
+        d_logits[
+            np.arange(batch_size), labels
+        ] -= 1
+
+        d_logits /= batch_size
+
+        return float(loss), d_logits
+
+    return loss_fn
 
 # Step 7 - make_sequential (not yet solved)
 # TODO: implement
